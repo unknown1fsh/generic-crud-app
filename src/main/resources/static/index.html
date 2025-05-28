@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Generic CRUD Uygulaması</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      margin-bottom: 2rem;
+    }
+    label {
+      margin: 0.5rem 0 0.2rem;
+    }
+    input, textarea {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Yeni Veri Girişi</h2>
+<form id="genericForm">
+  <label for="entityType">Varlık Tipi (örnek: PERSONEL)</label>
+  <input type="text" id="entityType" name="entityType" required>
+
+  <label for="entityKey">Anahtar (örnek: ad, soyad)</label>
+  <input type="text" id="entityKey" name="entityKey" required>
+
+  <label for="entityValue">Değer</label>
+  <textarea id="entityValue" name="entityValue" required></textarea>
+
+  <button type="submit">Kaydet</button>
+</form>
+
+<h2>Verileri Listele</h2>
+<input type="text" id="searchType" placeholder="Varlık Tipini Yaz (örnek: PERSONEL)">
+<button onclick="getData()">Verileri Getir</button>
+
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Tip</th>
+    <th>Anahtar</th>
+    <th>Değer</th>
+  </tr>
+  </thead>
+  <tbody id="resultBody"></tbody>
+</table>
+
+<script>
+  document.getElementById('genericForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const data = {
+      entityType: document.getElementById('entityType').value,
+      entityKey: document.getElementById('entityKey').value,
+      entityValue: document.getElementById('entityValue').value
+    };
+
+    try {
+      const response = await fetch('/api/generic', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        alert('Kayıt başarılı!');
+        document.getElementById('genericForm').reset();
+      } else {
+        alert('Kayıt başarısız: ' + await response.text());
+      }
+    } catch (error) {
+      alert('Hata oluştu: ' + error.message);
+    }
+  });
+
+  async function getData() {
+    const type = document.getElementById('searchType').value;
+
+    try {
+      const response = await fetch('/api/generic/' + type);
+      const data = await response.json();
+
+      const tbody = document.getElementById('resultBody');
+      tbody.innerHTML = '';
+
+      data.forEach(item => {
+        const row = `
+          <tr>
+            <td>${item.id}</td>
+            <td>${item.entityType}</td>
+            <td>${item.entityKey}</td>
+            <td>${item.entityValue}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">Kayıt bulunamadı</td></tr>';
+      }
+
+    } catch (error) {
+      alert('Veri getirme hatası: ' + error.message);
+    }
+  }
+</script>
+
+</body>
+</html>
