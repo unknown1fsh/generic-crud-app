@@ -1,138 +1,701 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Generic CRUD Uygulaması</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      max-width: 400px;
-      margin-bottom: 2rem;
-    }
-    label {
-      margin: 0.5rem 0 0.2rem;
-    }
-    input, textarea {
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-    button {
-      margin-top: 1rem;
-      padding: 0.7rem;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 0.5rem;
-      text-align: left;
-    }
-    th {
-      background-color: #eee;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generic CRUD Uygulaması</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .search-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .search-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-buttons button {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            background: #28a745;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        .toast.info {
+            background: #17a2b8;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Generic CRUD Uygulaması</h1>
+            <p>Dinamik Veri Yönetim Sistemi</p>
+        </div>
 
-<h2>Yeni Veri Girişi</h2>
-<form id="genericForm">
-  <label for="entityType">Varlık Tipi (örnek: PERSONEL)</label>
-  <input type="text" id="entityType" name="entityType" required>
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('generic')">Generic Veriler</button>
+            <button class="tab-button" onclick="showTab('parameters')">Sistem Parametreleri</button>
+        </div>
 
-  <label for="entityKey">Anahtar (örnek: ad, soyad)</label>
-  <input type="text" id="entityKey" name="entityKey" required>
+        <!-- Generic Data Tab -->
+        <div id="generic-tab" class="tab-content active">
+            <h2>Generic Veri Yönetimi</h2>
+            
+            <form id="genericForm" onsubmit="saveGeneric(event)">
+                <div class="form-group">
+                    <label for="entityType">Varlık Tipi *</label>
+                    <select id="entityType" required>
+                        <option value="">Seçiniz...</option>
+                        <option value="PERSONEL">PERSONEL</option>
+                        <option value="URUN">ÜRÜN</option>
+                        <option value="HIZMET">HİZMET</option>
+                        <option value="EGITIM">EĞİTİM</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="entityKey">Anahtar *</label>
+                    <input type="text" id="entityKey" required placeholder="örn: ad_soyad, fiyat, aciklama">
+                </div>
+                <div class="form-group">
+                    <label for="entityValue">Değer *</label>
+                    <textarea id="entityValue" required placeholder="Değer bilgisini giriniz"></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="saveBtn">Kaydet</button>
+                    <button type="button" class="btn-secondary" onclick="resetGenericForm()">Temizle</button>
+                </div>
+            </form>
 
-  <label for="entityValue">Değer</label>
-  <textarea id="entityValue" name="entityValue" required></textarea>
+            <div class="search-section">
+                <h3>🔍 Arama ve Filtreleme</h3>
+                <div class="search-row">
+                    <div class="form-group">
+                        <label for="searchEntityType">Varlık Tipi</label>
+                        <select id="searchEntityType">
+                            <option value="">Tümü</option>
+                            <option value="PERSONEL">PERSONEL</option>
+                            <option value="URUN">ÜRÜN</option>
+                            <option value="HIZMET">HİZMET</option>
+                            <option value="EGITIM">EĞİTİM</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchKey">Anahtar</label>
+                        <input type="text" id="searchKey" placeholder="Anahtar ara...">
+                    </div>
+                    <div class="form-group">
+                        <label for="searchValue">Değer</label>
+                        <input type="text" id="searchValue" placeholder="Değer ara...">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="searchGeneric()">Ara</button>
+                    <button class="btn-secondary" onclick="loadAllGeneric()">Tümünü Getir</button>
+                </div>
+            </div>
 
-  <button type="submit">Kaydet</button>
-</form>
+            <div id="genericTableContainer">
+                <table id="genericTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Varlık Tipi</th>
+                            <th>Anahtar</th>
+                            <th>Değer</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="genericTableBody">
+                        <tr>
+                            <td colspan="5" class="empty-state">Veri yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<h2>Verileri Listele</h2>
-<input type="text" id="searchType" placeholder="Varlık Tipini Yaz (örnek: PERSONEL)">
-<button onclick="getData()">Verileri Getir</button>
+        <!-- Parameters Tab -->
+        <div id="parameters-tab" class="tab-content">
+            <h2>Sistem Parametreleri Yönetimi</h2>
+            
+            <form id="parameterForm" onsubmit="saveParameter(event)">
+                <div class="form-group">
+                    <label for="paramKey">Parametre Anahtarı *</label>
+                    <input type="text" id="paramKey" required placeholder="örn: app.name, max.users">
+                </div>
+                <div class="form-group">
+                    <label for="paramValue">Parametre Değeri *</label>
+                    <input type="text" id="paramValue" required placeholder="Parametre değerini giriniz">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="saveParamBtn">Kaydet</button>
+                    <button type="button" class="btn-secondary" onclick="resetParameterForm()">Temizle</button>
+                </div>
+            </form>
 
-<table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Tip</th>
-    <th>Anahtar</th>
-    <th>Değer</th>
-  </tr>
-  </thead>
-  <tbody id="resultBody"></tbody>
-</table>
+            <div id="parameterTableContainer">
+                <table id="parameterTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Anahtar</th>
+                            <th>Değer</th>
+                            <th>Oluşturulma</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="parameterTableBody">
+                        <tr>
+                            <td colspan="5" class="empty-state">Veri yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-<script>
-  document.getElementById('genericForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
+    <script>
+        let editingGenericId = null;
+        let editingParameterId = null;
 
-    const data = {
-      entityType: document.getElementById('entityType').value,
-      entityKey: document.getElementById('entityKey').value,
-      entityValue: document.getElementById('entityValue').value
-    };
+        // Tab Management
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'generic') {
+                loadAllGeneric();
+            } else {
+                loadAllParameters();
+            }
+        }
 
-    try {
-      const response = await fetch('/api/generic', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-      });
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
-      if (response.ok) {
-        alert('Kayıt başarılı!');
-        document.getElementById('genericForm').reset();
-      } else {
-        alert('Kayıt başarısız: ' + await response.text());
-      }
-    } catch (error) {
-      alert('Hata oluştu: ' + error.message);
-    }
-  });
+        // Generic Data Functions
+        async function saveGeneric(event) {
+            event.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Kaydediliyor...';
 
-  async function getData() {
-    const type = document.getElementById('searchType').value;
+            const data = {
+                entityType: document.getElementById('entityType').value,
+                entityKey: document.getElementById('entityKey').value,
+                entityValue: document.getElementById('entityValue').value
+            };
 
-    try {
-      const response = await fetch('/api/generic/' + type);
-      const data = await response.json();
+            try {
+                const url = editingGenericId ? `/api/generic/${editingGenericId}` : '/api/generic';
+                const method = editingGenericId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
 
-      const tbody = document.getElementById('resultBody');
-      tbody.innerHTML = '';
+                if (response.ok) {
+                    showToast(editingGenericId ? 'Güncelleme başarılı!' : 'Kayıt başarılı!', 'success');
+                    resetGenericForm();
+                    loadAllGeneric();
+                } else {
+                    const error = await response.json();
+                    showToast(error.message || 'İşlem başarısız!', 'error');
+                }
+            } catch (error) {
+                showToast('Hata: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
 
-      data.forEach(item => {
-        const row = `
-          <tr>
-            <td>${item.id}</td>
-            <td>${item.entityType}</td>
-            <td>${item.entityKey}</td>
-            <td>${item.entityValue}</td>
-          </tr>
-        `;
-        tbody.innerHTML += row;
-      });
+        async function loadAllGeneric() {
+            try {
+                const response = await fetch('/api/generic');
+                const data = await response.json();
+                displayGenericData(data);
+            } catch (error) {
+                showToast('Veri yükleme hatası: ' + error.message, 'error');
+            }
+        }
 
-      if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4">Kayıt bulunamadı</td></tr>';
-      }
+        async function searchGeneric() {
+            const entityType = document.getElementById('searchEntityType').value;
+            const key = document.getElementById('searchKey').value;
+            const value = document.getElementById('searchValue').value;
 
-    } catch (error) {
-      alert('Veri getirme hatası: ' + error.message);
-    }
-  }
-</script>
+            try {
+                const params = new URLSearchParams();
+                if (entityType) params.append('entityType', entityType);
+                if (key) params.append('key', key);
+                if (value) params.append('value', value);
 
+                const response = await fetch(`/api/generic/search?${params}`);
+                const data = await response.json();
+                displayGenericData(data);
+                showToast(`${data.length} kayıt bulundu`, 'info');
+            } catch (error) {
+                showToast('Arama hatası: ' + error.message, 'error');
+            }
+        }
+
+        function displayGenericData(data) {
+            const tbody = document.getElementById('genericTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Kayıt bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.entityType}</td>
+                    <td>${item.entityKey}</td>
+                    <td>${item.entityValue}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-warning" onclick="editGeneric(${item.id})">Düzenle</button>
+                            <button class="btn-danger" onclick="deleteGeneric(${item.id})">Sil</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function editGeneric(id) {
+            try {
+                const response = await fetch(`/api/generic/id/${id}`);
+                const data = await response.json();
+                
+                document.getElementById('entityType').value = data.entityType;
+                document.getElementById('entityKey').value = data.entityKey;
+                document.getElementById('entityValue').value = data.entityValue;
+                editingGenericId = id;
+                
+                document.getElementById('saveBtn').textContent = 'Güncelle';
+                document.getElementById('genericForm').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                showToast('Düzenleme hatası: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteGeneric(id) {
+            if (!confirm('Bu kaydı silmek istediğinizden emin misiniz?')) return;
+
+            try {
+                const response = await fetch(`/api/generic/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast('Silme başarılı!', 'success');
+                    loadAllGeneric();
+                } else {
+                    showToast('Silme başarısız!', 'error');
+                }
+            } catch (error) {
+                showToast('Silme hatası: ' + error.message, 'error');
+            }
+        }
+
+        function resetGenericForm() {
+            document.getElementById('genericForm').reset();
+            editingGenericId = null;
+            document.getElementById('saveBtn').textContent = 'Kaydet';
+        }
+
+        // Parameter Functions
+        async function saveParameter(event) {
+            event.preventDefault();
+            const btn = document.getElementById('saveParamBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Kaydediliyor...';
+
+            const data = {
+                key: document.getElementById('paramKey').value,
+                value: document.getElementById('paramValue').value
+            };
+
+            try {
+                const url = editingParameterId ? `/api/parameters/${editingParameterId}` : '/api/parameters';
+                const method = editingParameterId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showToast(editingParameterId ? 'Güncelleme başarılı!' : 'Kayıt başarılı!', 'success');
+                    resetParameterForm();
+                    loadAllParameters();
+                } else {
+                    const error = await response.json();
+                    showToast(error.message || 'İşlem başarısız!', 'error');
+                }
+            } catch (error) {
+                showToast('Hata: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        async function loadAllParameters() {
+            try {
+                const response = await fetch('/api/parameters');
+                const data = await response.json();
+                displayParameterData(data);
+            } catch (error) {
+                showToast('Veri yükleme hatası: ' + error.message, 'error');
+            }
+        }
+
+        function displayParameterData(data) {
+            const tbody = document.getElementById('parameterTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Kayıt bulunamadı</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.key}</td>
+                    <td>${item.value}</td>
+                    <td>${item.createdAt ? new Date(item.createdAt).toLocaleString('tr-TR') : '-'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-warning" onclick="editParameter(${item.id})">Düzenle</button>
+                            <button class="btn-danger" onclick="deleteParameter(${item.id})">Sil</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function editParameter(id) {
+            try {
+                const response = await fetch(`/api/parameters/${id}`);
+                const data = await response.json();
+                
+                document.getElementById('paramKey').value = data.key;
+                document.getElementById('paramValue').value = data.value;
+                editingParameterId = id;
+                
+                document.getElementById('saveParamBtn').textContent = 'Güncelle';
+                document.getElementById('parameterForm').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                showToast('Düzenleme hatası: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteParameter(id) {
+            if (!confirm('Bu parametreyi silmek istediğinizden emin misiniz?')) return;
+
+            try {
+                const response = await fetch(`/api/parameters/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast('Silme başarılı!', 'success');
+                    loadAllParameters();
+                } else {
+                    showToast('Silme başarısız!', 'error');
+                }
+            } catch (error) {
+                showToast('Silme hatası: ' + error.message, 'error');
+            }
+        }
+
+        function resetParameterForm() {
+            document.getElementById('parameterForm').reset();
+            editingParameterId = null;
+            document.getElementById('saveParamBtn').textContent = 'Kaydet';
+        }
+
+        // Load data on page load
+        window.onload = function() {
+            loadAllGeneric();
+        };
+    </script>
 </body>
 </html>
