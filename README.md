@@ -243,8 +243,6 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 
 ## 👨‍💻 Geliştirici
 
-**Selim Sercan Çınar**
-
 - GitHub: [@unknown1fsh](https://github.com/unknown1fsh)
 
 ---
